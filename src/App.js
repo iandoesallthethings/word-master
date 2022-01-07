@@ -46,6 +46,7 @@ function App() {
       })
       return letterStatuses
     },
+    copied: false,
   }
   const [answer, setAnswer] = useState(initialStates.answer)
   const [gameState, setGameState] = useState(initialStates.gameState)
@@ -167,7 +168,7 @@ function App() {
       const newCellStatuses = [...prev]
       newCellStatuses[rowNumber] = [...prev[rowNumber]]
       const wordLength = word.length
-      const answerLetters = answer.split("");
+      const answerLetters = answer.split('')
 
       // set all to gray
       for (let i = 0; i < wordLength; i++) {
@@ -245,12 +246,55 @@ function App() {
           setCurrentRow(initialStates.currentRow)
           setCurrentCol(initialStates.currentCol)
           setLetterStatuses(initialStates.letterStatuses)
+          setCopied(initialStates.copied)
           closeModal()
           streakUpdated.current = false
         }}
       >
         Play Again
       </button>
+    )
+  }
+
+  let [copied, setCopied] = useState(initialStates.copied)
+
+  const ShareButton = () => {
+    const copyGrid = () => {
+      const emojiGridText = document.getElementById('emoji-grid').innerText
+      navigator.clipboard.writeText(emojiGridText)
+      setCopied(true)
+    }
+
+    return (
+      <button
+        type="button"
+        className="rounded-lg px-6 py-2 mt-8 text-lg nm-flat-background hover:nm-inset-background"
+        onClick={copyGrid}
+      >
+        {copied ? 'Copied!' : 'Share Grid'}
+      </button>
+    )
+  }
+
+  const EmojiGrid = () => {
+    const statusEmoji = {
+      green: '🟩',
+      yellow: '🟨',
+      gray: '⬛️',
+      unguessed: '',
+    }
+
+    return (
+      <div id="emoji-grid" className="leading-none">
+        {cellStatuses.map((row) => (
+          <span>
+            {row.map((letter) => (
+              <span>{statusEmoji[letter]}</span>
+            ))}
+            <br />
+          </span>
+        ))}
+      </div>
     )
   }
 
@@ -318,7 +362,11 @@ function App() {
               </div>
             </>
           )}
-          <PlayAgainButton />
+          <EmojiGrid />
+          <span className="flex space-x-4">
+            <ShareButton />
+            <PlayAgainButton />
+          </span>
         </div>
       </Modal>
       <Keyboard
